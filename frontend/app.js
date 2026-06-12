@@ -1,16 +1,22 @@
 /* =============================================
-   AI City Operations — App Logic v2
-   Features: Trace Panel, Map, Notifications,
-             Status Updates, Demo Data
+   AI City Operations — App Logic v3
+   Features: Multi-Agent Reasoning Trace,
+             Foundry IQ Citations, WebSockets,
+             Live Map, Real-Time Dashboard
    ============================================= */
 
 const API_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
     ? 'http://127.0.0.1:8000/api'
     : '/api';
+const WS_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost')
+    ? 'ws://127.0.0.1:8000/ws'
+    : `wss://${window.location.host}/ws`;
 let allReports = [];
 let currentFilter = 'all';
 let cityMap = null;
 let mapMarkers = [];
+let ws = null;
+let wsReconnectTimer = null;
 
 // ── CITY COORDINATES for demo (random offsets around a city center) ──
 const CITY_CENTER = [19.4184, 72.8182]; // Nalasopara
@@ -22,6 +28,86 @@ const LOCATION_OFFSETS = {
     'Outer Ring Road, Junction 12':  [19.4250, 72.7950],
     'Sector 4, Park Area':           [19.4100, 72.8250],
 };
+
+// ============================================================
+// WEBSOCKET CLIENT — Real-Time Live Updates
+// ============================================================
+function initWebSocket() {
+    if (ws && ws.readyState === WebSocket.OPEN) return;
+    try {
+        ws = new WebSocket(WS_URL);
+
+        ws.onopen = () => {
+            console.log('🔌 WebSocket connected — live updates active.');
+            clearTimeout(wsReconnectTimer);
+            // Keep-alive ping every 25 seconds
+            setInterval(() => { if (ws.readyState === WebSocket.OPEN) ws.send('ping'); }, 25000);
+        };
+
+        ws.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            handleWsEvent(msg);
+        };
+
+        ws.onerror = () => console.warn('WebSocket error — falling back to polling.');
+
+        ws.onclose = () => {
+            console.warn('WebSocket closed. Reconnecting in 5s...');
+            wsReconnectTimer = setTimeout(initWebSocket, 5000);
+        };
+    } catch (e) {
+        console.warn('WebSocket unavailable — polling active.');
+    }
+}
+
+function handleWsEvent(msg) {
+    const { type, payload } = msg;
+
+    if (type === 'init') {
+        // Server sends current state on first connect
+        allReports = payload.reports || [];
+        if (document.getElementById('view-manager').classList.contains('active')) {
+            renderDashboard();
+        }
+        if (document.getElementById('view-map').classList.contains('active')) {
+            renderMapMarkers();
+        }
+    }
+
+    if (type === 'new_report') {
+        // A new report was submitted — push it into state and refresh UI
+        const exists = allReports.some(r => r.id === payload.id);
+        if (!exists) {
+            allReports.unshift(payload); // prepend so newest appears first
+        }
+
+        // Live-update Operations Hub if visible
+        if (document.getElementById('view-manager').classList.contains('active')) {
+            renderDashboard();
+        }
+        // Live-update Map if visible
+        if (document.getElementById('view-map').classList.contains('active')) {
+            renderMapMarkers();
+        }
+
+        // Show toast notification regardless of which tab is active
+        const toastType = payload.priority === 'CRITICAL' ? 'critical' : payload.priority === 'High' ? 'warning' : 'info';
+        showToast(
+            `📡 Live: New Report ${payload.id}`,
+            `${payload.classification} → ${payload.department} | ${payload.priority}`,
+            toastType
+        );
+    }
+
+    if (type === 'status_update') {
+        // Status changed — update in-memory state
+        const report = allReports.find(r => r.id === payload.id);
+        if (report) report.status = payload.status;
+        if (document.getElementById('view-manager').classList.contains('active')) {
+            renderDashboard();
+        }
+    }
+}
 
 // ============================================================
 // NAVIGATION
@@ -233,6 +319,14 @@ function renderTrace(data) {
         container.appendChild(el);
         setTimeout(() => el.classList.add('revealed'), i * 80);
     });
+
+    // Show Foundry IQ policy citation
+    if (data.policy_citation) {
+        const citationEl = document.createElement('div');
+        citationEl.style.cssText = 'margin-top:1rem;padding:.75rem 1rem;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.78rem;color:#a78bfa;line-height:1.5;animation:fadeup .4s ease both;';
+        citationEl.innerHTML = `<span style="font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:.65rem;display:block;margin-bottom:4px;opacity:.7">📚 Foundry IQ — Policy Citation</span>${data.policy_citation}`;
+        document.getElementById('trace-panel').appendChild(citationEl);
+    }
 
     // Show resolution plan
     if (data.resolution_plan?.length) {
@@ -525,9 +619,14 @@ function openModal(report) {
             </div>
             ${report.reasoning ? `<p style="font-size:.82rem;color:var(--blue);font-style:italic">💡 "${report.reasoning}"</p>` : ''}
         </div>
+        ${report.policy_citation ? `
+        <div class="modal-section">
+            <div class="modal-section-title">📚 Foundry IQ — Policy Citation</div>
+            <div style="padding:.75rem 1rem;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:8px;font-size:.82rem;color:#a78bfa;line-height:1.6">${report.policy_citation}</div>
+        </div>` : ''}
         ${planHTML ? `<div class="modal-section"><div class="modal-section-title">🎯 AI-Generated Resolution Plan</div>${planHTML}</div>` : ''}
         ${allocHTML}
-        ${traceHTML ? `<div class="modal-section" style="margin-top:1.25rem;"><div class="modal-section-title">🔍 Reasoning Trace</div>${traceHTML}</div>` : ''}
+        ${traceHTML ? `<div class="modal-section" style="margin-top:1.25rem;"><div class="modal-section-title">🔍 Multi-Agent Reasoning Trace</div>${traceHTML}</div>` : ''}
     `;
 
     overlay.classList.remove('hidden');
@@ -687,8 +786,13 @@ function mockAnalyze(name, location, description) {
     return { id, name, description, location, classification, department, priority, confidence, status:'New', reasoning, reasoning_steps:steps, resolution_plan:planMap[department]||planMap['City Services'], resource_allocation:resourceMap[department]||resourceMap['City Services'] };
 }
 
-// ── Auto-poll dashboard every 30 seconds when active ──
+// ── Initialize WebSocket for real-time updates ──
+// Falls back to polling if WebSocket is unavailable
+initWebSocket();
+
+// Polling fallback: only fires if WebSocket is NOT connected
 setInterval(() => {
+    if (ws && ws.readyState === WebSocket.OPEN) return; // WS active — skip poll
     if (document.getElementById('view-manager').classList.contains('active')) {
         fetchReports();
     }

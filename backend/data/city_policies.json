@@ -1,0 +1,141 @@
+{
+  "version": "2026.1",
+  "source": "City Operations Policy Manual — Foundry IQ Knowledge Base",
+  "policies": [
+    {
+      "id": "WM-001",
+      "category": "Water Leak / Pipe Damage",
+      "keywords": ["water", "leak", "pipe", "flood", "sewage", "burst", "gush"],
+      "protocol_name": "Emergency Water Infrastructure Protocol",
+      "sla_response_hours": 1,
+      "sla_resolution_hours": 4,
+      "severity_rules": [
+        { "condition": "Active flooding onto road or signs of freezing", "priority": "CRITICAL" },
+        { "condition": "Continuous water leak, no flooding", "priority": "High" },
+        { "condition": "Minor seepage, no traffic impact", "priority": "Medium" }
+      ],
+      "resolution_steps": [
+        "Per Protocol WM-001: Dispatch Water Management emergency crew within 60 minutes.",
+        "Isolate the affected pipe section using the zone shut-off valve (ref. Zone Map v4.2).",
+        "Erect HSE-approved road barriers and diversion signs per Safety Code SC-14.",
+        "Restore water supply to affected residents within SLA window of 4 hours.",
+        "File Form INF-7 (Infrastructure Damage Report) and schedule permanent pipe replacement within 14 days."
+      ],
+      "crew_required": ["2 Licensed Plumbers", "1 Site Supervisor", "1 Traffic Officer"],
+      "estimated_cost_inr": 12000,
+      "estimated_time": "4 hours"
+    },
+    {
+      "id": "TR-002",
+      "category": "Pothole / Road Damage",
+      "keywords": ["pothole", "road", "asphalt", "pavement", "crack", "surface"],
+      "protocol_name": "Road Surface Emergency Repair Protocol",
+      "sla_response_hours": 2,
+      "sla_resolution_hours": 48,
+      "severity_rules": [
+        { "condition": "Pothole >20cm, observed accidents or near-misses, lane blockage", "priority": "High" },
+        { "condition": "Pothole >10cm, no incidents reported", "priority": "Medium" },
+        { "condition": "Surface crack, no depth, no incidents", "priority": "Low" }
+      ],
+      "resolution_steps": [
+        "Per Protocol TR-002: Deploy road maintenance crew within 2 hours for High priority assessments.",
+        "Place NHBC-compliant warning cones (minimum 50m ahead) around the hazard zone.",
+        "Apply cold-mix asphalt patch immediately for temporary stabilisation per Spec TRS-9.",
+        "Schedule permanent hot-mix resurfacing within 48 hours per SLA TR-002.",
+        "Conduct post-repair structural inspection of a 50m radius for secondary damage."
+      ],
+      "crew_required": ["3 Road Workers", "1 Heavy Machinery Operator", "1 Safety Officer"],
+      "estimated_cost_inr": 25000,
+      "estimated_time": "8 hours"
+    },
+    {
+      "id": "SAN-003",
+      "category": "Waste / Sanitation Issue",
+      "keywords": ["garbage", "trash", "waste", "litter", "dump", "bin", "overflow", "rodent"],
+      "protocol_name": "Public Sanitation Rapid Response Protocol",
+      "sla_response_hours": 4,
+      "sla_resolution_hours": 24,
+      "severity_rules": [
+        { "condition": "Evidence of rodents, pest infestation, or public health risk", "priority": "Medium" },
+        { "condition": "Overflowing bins, no health risk", "priority": "Low" },
+        { "condition": "Single missed collection, contained", "priority": "Low" }
+      ],
+      "resolution_steps": [
+        "Per Protocol SAN-003: Dispatch sanitation vehicle to the reported location within 4 hours.",
+        "Clear all overflowing waste and sanitize the surrounding area with approved disinfectant (Code SAN-R4).",
+        "Inspect and tag all damaged or full bin units for replacement under Asset Code BIN-x.",
+        "Schedule supplementary collections for the area every 2 days for the following 2 weeks.",
+        "File Form SAN-12 and initiate a review of the waste collection frequency schedule for the zone."
+      ],
+      "crew_required": ["2 Sanitation Workers", "1 Waste Collection Vehicle"],
+      "estimated_cost_inr": 4500,
+      "estimated_time": "2 hours"
+    },
+    {
+      "id": "ELEC-004",
+      "category": "Broken Streetlight",
+      "keywords": ["light", "streetlight", "lamp", "dark", "electricity", "outage", "bulb"],
+      "protocol_name": "Public Lighting Maintenance Protocol",
+      "sla_response_hours": 8,
+      "sla_resolution_hours": 48,
+      "severity_rules": [
+        { "condition": "3 or more consecutive lights out, or junction/crossing affected", "priority": "High" },
+        { "condition": "Single light out, non-critical area", "priority": "Medium" },
+        { "condition": "Flickering light, still functional", "priority": "Low" }
+      ],
+      "resolution_steps": [
+        "Per Protocol ELEC-004: Alert the Electrical Maintenance team (24/7 hotline: EXT-441).",
+        "Conduct on-site inspection of the fuse box and circuit breaker for the affected zone (ref. Grid Map v3.1).",
+        "Replace faulty LED unit or repair damaged wiring per Electrical Safety Standard ESS-7.",
+        "Test all adjacent streetlights on the same circuit for cascading fault detection.",
+        "Log the repair in the Asset Management System (AMS) and schedule the next preventive inspection within 6 months."
+      ],
+      "crew_required": ["2 Certified Electricians", "1 Boom Lift Operator"],
+      "estimated_cost_inr": 8000,
+      "estimated_time": "3 hours"
+    },
+    {
+      "id": "ENF-005",
+      "category": "Noise Complaint",
+      "keywords": ["noise", "loud", "disturbance", "party", "music", "nuisance"],
+      "protocol_name": "Public Nuisance & Enforcement Protocol",
+      "sla_response_hours": 1,
+      "sla_resolution_hours": 3,
+      "severity_rules": [
+        { "condition": "Disturbance causing public safety concern or repeated complaints", "priority": "Medium" },
+        { "condition": "Standard residential noise complaint", "priority": "Low" }
+      ],
+      "resolution_steps": [
+        "Per Protocol ENF-005: Dispatch a patrol unit to the location within 1 hour.",
+        "Assess the situation and file an Incident Report (Form POL-7).",
+        "Issue a verbal or written warning to the offending party as per By-Law NB-3.",
+        "Coordinate with the Magistrate's office if violation persists beyond the first warning.",
+        "Follow up with the complainant within 24 hours to confirm resolution."
+      ],
+      "crew_required": ["2 Enforcement Officers"],
+      "estimated_cost_inr": 0,
+      "estimated_time": "1-3 hours"
+    },
+    {
+      "id": "GEN-006",
+      "category": "General City Issue",
+      "keywords": [],
+      "protocol_name": "General Service Request Protocol",
+      "sla_response_hours": 24,
+      "sla_resolution_hours": 72,
+      "severity_rules": [
+        { "condition": "Unclassified request", "priority": "Medium" }
+      ],
+      "resolution_steps": [
+        "Per Protocol GEN-006: Log the complaint in the City Management System (CMS) within 24 hours.",
+        "Assign the ticket to a Field Inspector for in-person assessment.",
+        "Inspector to file an assessment report within 48 hours.",
+        "Issue a work order based on the inspector's findings.",
+        "Update the citizen on the expected resolution timeline via registered contact."
+      ],
+      "crew_required": ["1 Field Inspector"],
+      "estimated_cost_inr": 2000,
+      "estimated_time": "Variable"
+    }
+  ]
+}
