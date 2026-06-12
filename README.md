@@ -10,27 +10,6 @@ An intelligent, AI-powered system designed to ingest, classify, and route citize
 
 ## 🏗️ Architecture
 
-```mermaid
-graph TD
-    User["👤 Citizen User"] -->|HTTP POST (Report Issue)| Frontend["🖥️ Frontend UI (Vercel Static)"]
-    Frontend -->|API Request (/api/reports)| Backend["⚙️ FastAPI Backend (Vercel Serverless)"]
-    Backend -->|Submit Report| Agent["🧠 City Operations AI Agent"]
-    
-    subgraph AI Processing
-        Agent -->|1. Check DB| DB[("🗄️ In-Memory DB")]
-        DB -->|2. Return Exising| Agent
-        Agent -->|3. Fallback (Mock Mode)| Mock["🔍 Local Mock Algorithm"]
-        Agent -->|4. Production (Foundry)| Foundry["☁️ Azure AI Foundry SDK"]
-        Foundry -->|LLM Prompt| Model["🤖 GPT-4o Model"]
-        Model -->|JSON Response (Priority, Plan, Dept)| Foundry
-        Foundry -->|Parsed Data| Agent
-    end
-
-    Agent -->|Save Result| DB
-    Agent -->|Return Response| Backend
-    Backend -->|Return JSON| Frontend
-    Frontend -->|Display Resolution Plan| User
-```
 
 ## 🛠️ Tech Stack
 - **Backend**: Python, FastAPI
