@@ -10,6 +10,7 @@ An intelligent, AI-powered system designed to ingest, classify, and route citize
 
 ## 🏗️ Architecture
 
+![Diagram](./architecture_diagram.png)
 
 ## 🛠️ Tech Stack
 - **Backend**: Python, FastAPI
