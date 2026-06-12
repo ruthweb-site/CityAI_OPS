@@ -1,0 +1,22 @@
+# Environments
+.env
+.env.local
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Vercel
+.vercel/
+
+# VS Code
+.vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db

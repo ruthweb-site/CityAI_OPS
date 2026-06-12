@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI City Operations — Intelligent Urban Management</title>
+    <meta name="description" content="AI-powered city operations agent that intelligently routes, prioritizes, and tracks citizen issue reports using Microsoft Foundry.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Leaflet.js for map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Ambient background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+                </div>
+                <span class="brand-name">CityAI <span class="brand-tag">OPS</span></span>
+            </div>
+            <div class="nav-center">
+                <div class="nav-tabs">
+                    <button class="nav-tab active" id="tab-citizen" onclick="switchView('citizen')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Citizen Portal
+                    </button>
+                    <button class="nav-tab" id="tab-manager" onclick="switchView('manager')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        Operations Hub
+                    </button>
+                    <button class="nav-tab" id="tab-insights" onclick="switchView('insights')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        City Insights
+                    </button>
+                    <button class="nav-tab" id="tab-map" onclick="switchView('map')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                        Live Map
+                    </button>
+                </div>
+            </div>
+            <div class="nav-status">
+                <div class="status-dot"></div>
+                <span class="status-text">AI Agent Online</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======================== CITIZEN PORTAL ======================== -->
+    <section class="view active" id="view-citizen">
+        <div class="page-layout">
+
+            <!-- Left: Hero Panel -->
+            <div class="hero-panel">
+                <div class="hero-content">
+                    <div class="hero-eyebrow">
+                        <div class="pulse-dot"></div>
+                        Powered by Microsoft Foundry
+                    </div>
+                    <h1 class="hero-title">Report City Issues.<br><span class="gradient-text">AI Resolves Them.</span></h1>
+                    <p class="hero-subtitle">Our multi-step reasoning agent instantly classifies your complaint, routes it to the right department, and sets the correct priority — automatically.</p>
+                    <div class="agent-steps">
+                        <div class="step"><div class="step-num">01</div><div class="step-info"><strong>Understand</strong><span>Agent reads and comprehends your report</span></div></div>
+                        <div class="step-connector"></div>
+                        <div class="step"><div class="step-num">02</div><div class="step-info"><strong>Classify & Route</strong><span>Determines department and category</span></div></div>
+                        <div class="step-connector"></div>
+                        <div class="step"><div class="step-num">03</div><div class="step-info"><strong>Prioritize & Track</strong><span>Sets severity level and generates ticket</span></div></div>
+                        <div class="step-connector"></div>
+                        <div class="step"><div class="step-num">04</div><div class="step-info"><strong>Resolution Plan</strong><span>AI creates step-by-step action plan</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Report Form + Trace -->
+            <div class="form-panel">
+                <div class="glass-form-card" id="form-card">
+                    <div class="form-header">
+                        <h2>Submit a Report</h2>
+                        <p>Describe your issue below. Our AI agent will handle the rest.</p>
+                    </div>
+                    <form id="report-form" autocomplete="off">
+                        <div class="field-group">
+                            <label for="citizen-name">Full Name</label>
+                            <div class="input-wrap">
+                                <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <input type="text" id="citizen-name" placeholder="e.g. Ravi Kumar" required>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label for="location">Location / Address</label>
+                            <div class="input-wrap">
+                                <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <input type="text" id="location" placeholder="e.g. 5th Ave & Main Street" required>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label for="description">Describe the Issue</label>
+                            <div class="input-wrap textarea-wrap">
+                                <svg class="field-icon field-icon-top" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <textarea id="description" rows="4" placeholder="Describe the problem in detail..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="quick-fill-section">
+                            <span class="quick-fill-label">Quick Demo:</span>
+                            <button type="button" class="quick-btn" onclick="quickFill('water')">💧 Water Leak</button>
+                            <button type="button" class="quick-btn" onclick="quickFill('pothole')">🚧 Pothole</button>
+                            <button type="button" class="quick-btn" onclick="quickFill('garbage')">🗑️ Garbage</button>
+                            <button type="button" class="quick-btn" onclick="quickFill('light')">💡 Streetlight</button>
+                        </div>
+                        <button type="submit" class="submit-btn" id="submit-btn">
+                            <span id="btn-text"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit to AI Agent</span>
+                            <span id="btn-loading" class="hidden"><span class="spinner"></span> Agent Analyzing...</span>
+                        </button>
+                    </form>
+
+                    <!-- Success State -->
+                    <div id="success-panel" class="success-panel hidden">
+                        <div class="success-icon">✓</div>
+                        <h3>Report Successfully Processed!</h3>
+                        <p>Ticket <span class="mono" id="res-id" style="color:var(--cyan)">—</span> created and routed.</p>
+                        <div class="result-grid">
+                            <div class="result-item"><span class="result-label">Classification</span><span class="result-value" id="res-class">—</span></div>
+                            <div class="result-item"><span class="result-label">Department</span><span class="result-value" id="res-dept">—</span></div>
+                            <div class="result-item"><span class="result-label">Priority</span><span class="result-value" id="res-priority">—</span></div>
+                            <div class="result-item"><span class="result-label">AI Confidence</span><span class="result-value" id="res-conf">—</span></div>
+                        </div>
+                        <button class="submit-btn secondary-btn" onclick="resetForm()">Submit Another Report</button>
+                    </div>
+
+                    <!-- Follow-up State -->
+                    <div id="followup-panel" class="success-panel hidden" style="border: 1px solid var(--orange); background: rgba(249,115,22,0.05)">
+                        <h3 style="color:var(--orange)">AI Follow-Up Question</h3>
+                        <p id="followup-text" style="margin-bottom:1rem; font-weight: 500;"></p>
+                        <textarea id="followup-answer" rows="3" placeholder="Type your answer here..." style="width:100%; margin-bottom:1rem; background:rgba(255,255,255,0.05); color:white; border:1px solid var(--border); padding:10px; border-radius:6px; font-family: inherit; font-size: 0.9rem;"></textarea>
+                        <button class="submit-btn" onclick="submitFollowUp()" style="background:var(--orange); color:black; font-weight:600;">Answer & Submit</button>
+                    </div>
+
+                    <!-- Duplicate State -->
+                    <div id="duplicate-panel" class="success-panel hidden" style="border: 1px solid var(--yellow); background: rgba(234,179,8,0.05)">
+                        <div class="success-icon" style="background:var(--yellow); color:black; border-color:var(--yellow)">!</div>
+                        <h3 style="color:var(--yellow)">Similar Issue Detected</h3>
+                        <p>Your report has been merged with an existing ticket.</p>
+                        <p style="margin-top:0.5rem">Parent Ticket: <span class="mono" id="dup-parent-id" style="color:var(--yellow)">—</span></p>
+                        <button class="submit-btn secondary-btn" onclick="resetForm()" style="margin-top:1rem;">Submit Another Report</button>
+                    </div>
+                </div>
+
+                <!-- AI Reasoning Trace Panel (appears after submission) -->
+                <div class="trace-panel hidden" id="trace-panel">
+                    <div class="trace-header">
+                        <div class="trace-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            Live AI Reasoning Trace
+                        </div>
+                        <span class="trace-badge">Microsoft Foundry</span>
+                    </div>
+                    <div class="trace-steps" id="trace-steps"></div>
+
+                    <!-- Resolution Plan -->
+                    <div class="resolution-plan hidden" id="resolution-plan">
+                        <div class="plan-header">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            AI-Generated Resolution Plan
+                        </div>
+                        <ol class="plan-list" id="plan-list"></ol>
+                    </div>
+
+                    <!-- Resource Allocation -->
+                    <div class="resource-panel hidden" id="resource-allocation">
+                        <div class="resource-header">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                            AI Resource Allocation
+                        </div>
+                        <div class="resource-grid" id="resource-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================== OPERATIONS HUB ======================== -->
+    <section class="view hidden" id="view-manager">
+        <div class="dashboard-layout">
+            <div class="stats-bar">
+                <div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total Reports</div></div>
+                <div class="stat-card critical"><div class="stat-value" id="stat-critical">0</div><div class="stat-label">Critical</div></div>
+                <div class="stat-card high"><div class="stat-value" id="stat-high">0</div><div class="stat-label">High Priority</div></div>
+                <div class="stat-card resolved"><div class="stat-value" id="stat-resolved">0</div><div class="stat-label">Resolved</div></div>
+                <button class="refresh-btn" onclick="fetchReports()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Refresh
+                </button>
+            </div>
+            <div class="filter-bar">
+                <span class="filter-label">Filter:</span>
+                <button class="filter-btn active" onclick="filterReports('all', this)">All</button>
+                <button class="filter-btn" onclick="filterReports('CRITICAL', this)">🔴 Critical</button>
+                <button class="filter-btn" onclick="filterReports('High', this)">🟠 High</button>
+                <button class="filter-btn" onclick="filterReports('Medium', this)">🟡 Medium</button>
+                <button class="filter-btn" onclick="filterReports('Low', this)">🟢 Low</button>
+                <button class="filter-btn" onclick="filterReports('New', this)">🆕 New</button>
+                <button class="filter-btn" onclick="filterReports('Resolved', this)">✅ Resolved</button>
+            </div>
+            <div class="reports-grid" id="reports-grid"></div>
+            <div class="empty-state hidden" id="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>No Reports Yet</h3>
+                <p>Go to the Citizen Portal and submit a report. It will appear here instantly.</p>
+                <button class="submit-btn" onclick="switchView('citizen')" style="width:auto;padding:12px 24px">Go to Citizen Portal</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================== LIVE MAP ======================== -->
+    <section class="view hidden" id="view-map">
+        <div class="map-layout">
+            <div class="map-sidebar">
+                <h2 class="map-sidebar-title">📍 Live Issue Map</h2>
+                <p class="map-sidebar-sub">All active city reports plotted by AI. Click a pin to view details.</p>
+                <div class="map-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Critical</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#f97316"></span> High</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#eab308"></span> Medium</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#22c55e"></span> Low</div>
+                </div>
+                <div class="map-report-list" id="map-report-list"></div>
+            </div>
+            <div id="city-map" class="city-map"></div>
+        </div>
+    </section>
+
+    <!-- ======================== CITY INSIGHTS ======================== -->
+    <section class="view hidden" id="view-insights">
+        <div class="insights-layout">
+            <div class="insights-header">
+                <h2>City Insights</h2>
+                <p>Executive Dashboard & AI-Driven Analytics</p>
+            </div>
+            
+            <div class="insights-grid">
+                <!-- Card 1: This Week Summary -->
+                <div class="insight-card">
+                    <div class="insight-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        This Week Summary
+                    </div>
+                    <ul class="insight-list">
+                        <li><strong>34</strong> Pothole Complaints</li>
+                        <li><strong>18</strong> Water Leaks</li>
+                        <li><strong>12</strong> Streetlight Failures</li>
+                    </ul>
+                </div>
+
+                <!-- Card 2: AI Alert & Recommendation -->
+                <div class="insight-card">
+                    <div class="insight-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        AI Predictive Analysis
+                    </div>
+                    
+                    <div class="insight-alert">
+                        <div class="insight-alert-title">Trend Alert: Ward 4</div>
+                        <div class="insight-alert-desc">Ward 4 is showing a <strong>40% increase</strong> in infrastructure complaints compared to last month.</div>
+                    </div>
+
+                    <div class="insight-recommendation">
+                        <div class="insight-recommendation-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            AI Recommendation
+                        </div>
+                        <div class="insight-recommendation-desc">Deploy additional maintenance team to Ward 4 immediately to prevent backlog accumulation.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Report Detail Modal -->
+    <div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+fastapi==0.110.1
+uvicorn==0.29.0
+pydantic==2.6.4
+azure-ai-projects
+azure-identity
+python-dotenv
+openai
+azure-ai-inference
