@@ -22,7 +22,8 @@ An intelligent, multi-agent AI system that ingests citizen reports (potholes, wa
 | ⚡ **Real-Time WebSockets** | New reports are instantly broadcast to all connected dashboards — no refresh needed |
 | 🗺️ **Live Issue Map** | Interactive Leaflet.js map with color-coded severity pins |
 | 🔁 **Duplicate Detection** | Identifies and merges duplicate reports at the same location |
-| 📊 **Operations Hub** | City manager dashboard with priority filtering, status updates, and AI insights |
+| 📊 **Operations Hub** | City manager dashboard with priority filtering and live status updates |
+| 📈 **City Insights** | AI Predictive Analysis dashboard that actively scans reporting trends to detect spikes and alert administrators |
 | 🧠 **Follow-Up Questions** | Triage Agent asks citizens for more info when reports are too vague |
 
 ---
